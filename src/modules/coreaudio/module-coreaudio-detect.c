@@ -231,7 +231,7 @@ fail:
 }
 
 void pa__done(pa_module *m) {
-    struct userdata *u;
+    struct userdata *u = NULL;
     struct ca_device *dev = u->devices;
     AudioObjectPropertyAddress property_address;
 
