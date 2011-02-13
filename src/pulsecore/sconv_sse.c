@@ -42,6 +42,15 @@ static const PA_DECLARE_ALIGNED (16, float, mone[4]) = { -1.0, -1.0, -1.0, -1.0 
 static const PA_DECLARE_ALIGNED (16, float, scale[4]) = { 0x7fff, 0x7fff, 0x7fff, 0x7fff };
 
 static void pa_sconv_s16le_from_f32ne_sse(unsigned n, const float *a, int16_t *b) {
+#if defined (__i386__)
+    unsigned int c;
+    for(c = 0; c < n; c++)
+    {
+        *b = (int16_t) *a;
+        b++;
+        a++;
+    }
+#else
     pa_reg_x86 temp, i;
 
     __asm__ __volatile__ (
@@ -104,9 +113,13 @@ static void pa_sconv_s16le_from_f32ne_sse(unsigned n, const float *a, int16_t *b
         : "r" (a), "r" (b), "r" ((pa_reg_x86)n), "m" (*one), "m" (*mone), "m" (*scale)
         : "cc", "memory"
     );
+#endif
 }
 
 static void pa_sconv_s16le_from_f32ne_sse2(unsigned n, const float *a, int16_t *b) {
+#if defined (__i386__)
+    pa_sconv_s16le_from_f32ne_sse(n, a, b);
+#else
     pa_reg_x86 temp, i;
 
     __asm__ __volatile__ (
@@ -162,6 +175,7 @@ static void pa_sconv_s16le_from_f32ne_sse2(unsigned n, const float *a, int16_t *
         : "r" (a), "r" (b), "r" ((pa_reg_x86)n), "m" (*one), "m" (*mone), "m" (*scale)
         : "cc", "memory"
     );
+#endif
 }
 
 #undef RUN_TEST
